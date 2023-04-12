@@ -88,7 +88,32 @@ class AuthController extends Controller
 
     }
 
-    public function logout(Request $request){
-        dd("111111");
+    public function logout(Request $request ){
+        $token = $request->bearerToken();
+        if ($token === null){
+            return response()->json([
+                'date'=>(object)[
+                    'token'=> 'the token was not detected',
+                    ]
+                ],200);
+        }
+        $users = Users::all();
+        foreach ($users as $user){
+            $tokens = ($user->api_token);
+            if ($token === $tokens ){
+                $user->update([
+                    'api_token' => null
+                ]);
+                return response()->json([
+                    'date'=>(object)[
+                        'token'=>'deleted',
+                    ]
+                    ],200);
+            };  
+        }
+        return response()->json([
+            'date'=>(object)[
+                'error'=> 'no token'
+            ]],401);
     }
 }
